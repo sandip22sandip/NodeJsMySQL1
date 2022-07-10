@@ -6,7 +6,7 @@ let util    = require('util');
 let pool = mysql.createPool({
     connectionLimit: process.env.CONNLIMIT,
     host: process.env.DBHOST,
-    user: process.env.DBROOT,
+    user: process.env.DBUSER,
     password: process.env.DBPASS,
     database: process.env.DBNAME
 });
@@ -17,7 +17,7 @@ pool.getConnection((err, connection) => {
             console.log('Database connection was closed.');
         }
         if (err.code === 'ER_CON_COUNT_ERROR') {
-            console.log('Database has too many connections.')
+            console.log('Database has too many connections.');
         }
         if (err.code === 'ECONNREFUSED') {
             console.log('Database connection was refused.');

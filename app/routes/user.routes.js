@@ -1,16 +1,13 @@
 'user strict';
 
-let express     = require('express');
-let router      = express.Router();
-let dbConn      = require('../../database.js');
+let express         = require('express');
+let router          = express.Router();
 
-router.get('/', function (req, res, next) {
-    let sqlQuery = "SELECT * FROM core_user";
+let userController  = require('../controllers/user.controller.js');
+let authHelper      = require('../helpers/auth.helper.js');
 
-    let query = dbConn.query(sqlQuery, (err, results) => {
-        if(err) throw err;
-        res.send(results);
-    });
-})
+router.post('/sign-up', userController.signUpUser);
+router.post('/login', userController.loginUser);
+router.get('/getusers', authHelper.isAuthorize, userController.getAllUsers);
 
-module.exports  = router;
+module.exports      = router;
