@@ -9,6 +9,8 @@ let authHelper      = require('../helpers/auth.helper.js');
 
 router.post('/sign-up', userValidator.validate('signUpUserVal'), userController.signUpUser);
 router.post('/login', userValidator.validate('loginUserVal'), userController.loginUser);
+router.post('/:id', userValidator.validate('editUserVal'), authHelper.isAuthorize, userController.editUser);
+router.delete('/:id', userValidator.validate('deleteUserVal'), authHelper.isAuthorize, userController.deleteUser);
 router.get('/getusers', authHelper.isAuthorize, userController.getAllUsers);
 
 module.exports      = router;
