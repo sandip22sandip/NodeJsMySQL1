@@ -11,10 +11,8 @@ let libUser                 = require('../lib/lib.user');
 module.exports = {
     getAllUsers: async (req, res) => {
         try{
-            await dbConn.query("SELECT * FROM core_user", (err, results) => {
-                if(err) throw err;
-                resHelper.respondAsJSON(res, true, 200, 'Users fetched successfully!', results);
-            });
+            let results = await libUser.getAllUsers();
+            resHelper.respondAsJSON(res, true, 200, 'Users fetched successfully!', results);
         } catch(error){
             resHelper.handleError(res);
             return;
@@ -28,13 +26,11 @@ module.exports = {
                 resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
                 return;
             }
-            let username    = req.body.username;
+
+            let { username, password, firstname, lastname, email, user_type } = req.body;
+
+            let pass        = bcrypt.hashSync(password, 10);
             let userid      = `/${username}`;
-            let firstname   = req.body.firstname;
-            let lastname    = req.body.lastname;
-            let email       = req.body.email;
-            let pass        = bcrypt.hashSync(req.body.password, 10);
-            let user_type   = req.body.user_type;
 
             let isExists    = await libUser.checkUseridExists(userid);
             if(isExists.length != 0){
@@ -58,10 +54,10 @@ module.exports = {
                 resHelper.handleError(res, false, 400, "Oops! The Login credentials are incorrect.", { error: errors.array() });
                 return;
             }
-            
-            let username    = req.body.username;
+
+            let { username, pass } = req.body;
+
             let userid      = `/${username}`;
-            let pass        = req.body.pass;
 
             let isExists    = await libUser.checkUseridExists(userid);
             if(isExists.length == 0){
@@ -89,14 +85,11 @@ module.exports = {
                 resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
                 return;
             }
-            let idst        = req.params.id;
-            let username    = req.body.username;
+
+            let { username, password, firstname, lastname, email, user_type } = req.body;
+
+            let pass        = bcrypt.hashSync(password, 10);
             let userid      = `/${username}`;
-            let firstname   = req.body.firstname;
-            let lastname    = req.body.lastname;
-            let email       = req.body.email;
-            let pass        = bcrypt.hashSync(req.body.password, 10);
-            let user_type   = req.body.user_type;
 
             let results     = await libUser.checkidstExists(idst);
 
@@ -113,12 +106,12 @@ module.exports = {
                 }
 
                 let updateUser = await libUser.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
-                    resHelper.respondAsJSON(res, true, 200, "User details updated successfully!");
+                resHelper.respondAsJSON(res, true, 200, "User details updated successfully!");
                 return;
             }
 
             let updateUser = await libUser.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
-                resHelper.respondAsJSON(res, true, 200, "User details updated successfully!", {updateUser});
+            resHelper.respondAsJSON(res, true, 200, "User details updated successfully!", {updateUser});
         } catch(error){
             resHelper.handleError(res);
             return;
@@ -141,10 +134,8 @@ module.exports = {
                 return;
             }
 
-            dbConn.query(`DELETE FROM core_user WHERE idst = '${idst}'`, (err, results) => {
-                if(err) throw err;
-                resHelper.respondAsJSON(res, true, 200, "User deleted succssfully!", {});
-            });
+            let delUser = await libUser.deleteUser(idst);
+            resHelper.respondAsJSON(res, true, 200, "User deleted successfully!", {delUser});
         }catch(error){
             resHelper.handleError(res);
             return;
