@@ -15,11 +15,12 @@ module.exports = {
 
     handleError: (res, status = false, statusCode = 400, message = '', data = {}) => {
         message = message || 'Internal server error';
-        res.status(statusCode).json({
+        res.status(statusCode).send({
             status,
             statusCode,
             message,
             data
         });
+        return;
     },
 }
