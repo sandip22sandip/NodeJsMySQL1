@@ -39,7 +39,9 @@ module.exports = {
             }
 
             let isReg = await libUser.registerUser(userid, firstname, lastname, email, pass, user_type);
+
             console.log(isReg.insertId);
+            
             resHelper.respondAsJSON(res, true, 200, 'User registered successfully!', { idst: isReg.insertId});
         } catch(error){
             resHelper.handleError(res);
@@ -88,6 +90,7 @@ module.exports = {
 
             let { username, password, firstname, lastname, email, user_type } = req.body;
 
+            let idst        = req.params.id;
             let pass        = bcrypt.hashSync(password, 10);
             let userid      = `/${username}`;
 

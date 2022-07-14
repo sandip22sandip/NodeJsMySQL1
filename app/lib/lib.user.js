@@ -19,7 +19,7 @@ module.exports = {
 
     checkUseridExists: (userid) => {
         return new Promise((resolve, reject) => {
-            dbConn.query( `SELECT * FROM core_user WHERE userid = '${userid}'`, (err, results) => {
+            dbConn.query( `SELECT * FROM ?? WHERE userid = ?`, ["core_user", userid],  (err, results) => {
                 if(err) {
                     reject(err);
                 } else {
@@ -31,7 +31,7 @@ module.exports = {
 
     checkidstExists: (idst) => {
         return new Promise((resolve, reject) => {
-            dbConn.query( `SELECT * FROM core_user WHERE idst = '${idst}'`, (err, results) => {
+            dbConn.query( `SELECT * FROM ?? WHERE idst = ?`, ["core_user", idst],  (err, results) => {
                 if(err) {
                     reject(err);
                 } else {
