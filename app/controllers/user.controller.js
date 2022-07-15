@@ -58,9 +58,7 @@ module.exports = {
             }
 
             let { username, pass } = req.body;
-
             let userid      = `/${username}`;
-
             let isExists    = await libUser.checkUseridExists(userid);
             if(isExists.length == 0){
                 resHelper.handleError(res, false, 401, "Oops! User does not exists on System.");
