@@ -1,12 +1,10 @@
 'use strict';
-const bcrypt                = require('bcrypt');
-const { validationResult }  = require('express-validator/check');
 
-let dbConn                  = require('../../database.js');
-let authHelper              = require('../helpers/auth.helper.js');
 let resHelper               = require('../helpers/response.helper.js');
-
-let libUser                 = require('../lib/lib.user');       
+let libUser                 = require('../lib/lib.user'); 
+const bcrypt                = require('bcrypt');
+const jwt                   = require('jsonwebtoken');
+const { validationResult }  = require('express-validator/check');      
 
 module.exports = {
     getAllUsers: async (req, res) => {
@@ -71,7 +69,22 @@ module.exports = {
                 return;
             }
 
-            resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", isExists[0]);
+            let userData = isExists[0];
+            let appToken = jwt.sign({
+                idst: userData.idst,
+                userid: userData.userid, 
+                firstname: userData.firstname, 
+                lastname: userData.lastname, 
+                email: userData.email,
+                user_type: userData.user_type
+            }, process.env.JWT_KEY);
+
+            let updateAppToken = await libUser.updateAppToken(userData.idst, appToken);
+            if(updateAppToken){
+                resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", userData);
+            }else{
+                resHelper.handleError(res);
+            }
         }catch(error){
             resHelper.handleError(res);
             return;

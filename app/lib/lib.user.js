@@ -66,6 +66,30 @@ module.exports = {
         });
     },
 
+    updateAppToken: (idst, appToken) => {
+        return new Promise((resolve, reject) => {
+            dbConn.query(`UPDATE ?? SET appToken = ? WHERE idst = ?`, ["core_user", appToken, idst], (err, results) => {
+                if(err){
+                    reject(err);
+                }else{
+                    resolve(results);
+                }
+            });
+        });
+    },
+
+    getUserFromAppToken: (appToken) => {
+        return new Promise((resolve, reject) => {
+            dbConn.query(`SELECT * FROM ?? WHERE appToken = ?`, ["core_user", appToken], (err, results) => {
+                if(err){
+                    reject(err);
+                }else{
+                    resolve(results);
+                }
+            });
+        });
+    },
+
     deleteUser: (idst) => {
         return new Promise((resolve, reject) => {
             dbConn.query(`DELETE FROM ?? WHERE idst = ?`, ["core_user", idst], (err, results) => {

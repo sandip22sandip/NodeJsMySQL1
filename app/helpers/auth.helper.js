@@ -2,7 +2,7 @@
 
 const jwt       = require('jsonwebtoken');
 let resHelper   = require('./response.helper.js');
-let dbConn      = require('../../database.js');
+let libUser     = require('../lib/lib.user.js');
 
 /**
  * Get authorization token from header
@@ -28,20 +28,15 @@ module.exports = {
         let tokenfromheader = getAccessTokenFromHeader(req);
         if (tokenfromheader === null) {
             resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-        } else {
-            let sqlQuery = `SELECT * FROM core_user WHERE idst = '${tokenfromheader}'`;
-
-            let query = await dbConn.query(sqlQuery, (err, results) => {
-                if(err) throw err;
-                if(results && results.length){
-                    // console.log(results);
-                    next();
-                }else{
-                    resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-                }
-            });
-
+            return;
+        }
+        let getUserData = await libUser.getUserFromAppToken(tokenfromheader);
+        console.log(getUserData);
+        if(getUserData && getUserData.length){
+            next();
+        }else{
             resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
+            return;
         }
     }
 };
