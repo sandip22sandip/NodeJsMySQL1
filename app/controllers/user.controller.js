@@ -4,7 +4,10 @@ let resHelper               = require('../helpers/response.helper.js');
 let libUser                 = require('../lib/lib.user'); 
 const bcrypt                = require('bcrypt');
 const jwt                   = require('jsonwebtoken');
-const { validationResult }  = require('express-validator/check');  
+const { validationResult }  = require('express-validator/check');
+
+let multer                  = require("multer");
+const authHelper = require('../helpers/auth.helper.js');
 
 function paginate(npp, page, totalRows){
     let numPerPage      = parseInt(npp, 10) || 10;
@@ -196,6 +199,55 @@ module.exports = {
         }catch(error){
             resHelper.handleError(res);
             return;
+        }
+    },
+
+    uploadProfileAvatar: async (req, res) => {
+        try{
+            let file    = req.file;
+            // console.log(file);
+
+            if(!['image/jpeg', 'image/jpg', 'image/png'].includes(file.mimetype)){
+                resHelper.handleError(res, false, 400, "Oops! File type not supported", {file});
+                return;
+            }
+
+            var storage = multer.diskStorage({
+                destination: function (req, file, cb) {
+                  cb(null, './public/uploads/avatars/')
+                },
+                filename: function (req, file, cb) {
+                  cb(null, file.originalname)
+                }
+            });
+            var upload = multer({ storage: storage });
+
+            if(upload){
+                let appToken   = await authHelper.getAccessToken(req);
+                if (appToken === null) {
+                    resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
+                    return;
+                }
+
+                let userDetail = await libUser.getUserFromAppToken(appToken);
+                if(userDetail.length == 0){
+                    resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
+                    return;
+                }
+
+                let avatar  = 'public/uploads/avatars/'+file.filename;
+                let idst    = userDetail[0].idst;
+                let updateAvatar = await libUser.updateAvatar(idst, avatar);
+                if(updateAvatar){
+                    resHelper.respondAsJSON(res, true, 200, "Profile Avatar uploaded successfully!", {file});
+                }else{
+                    resHelper.handleError(res, false, 400, "Oops! Something went wrong while uploading the File.");
+                }
+            }else{
+                resHelper.handleError(res, false, 400, "Oops! Something went wrong while uploading the File.");
+            }
+        }catch(error){
+            resHelper.handleError(res);
         }
     }
 }
