@@ -5,7 +5,6 @@ require('dotenv').config();
 let express         = require('express');
 let expressValidator= require('express-validator');
 let bodyParser      = require('body-parser');
-let dbConn          = require('./database.js');
 
 let app             = express();
 app.use(bodyParser.urlencoded({ extended: false }));

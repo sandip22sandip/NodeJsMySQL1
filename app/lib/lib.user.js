@@ -5,9 +5,28 @@ let dbConn                  = require('../../database.js');
 
 module.exports = {
     
-    getAllUsers: () => {
+    getAllUsers: (limit, sortBy, orderBy, filterBy) => {
+        if(!sortBy){
+            sortBy = 'idst';
+        }
+
+        if(!['ASC', 'DESC'].includes(orderBy)){
+            orderBy = 'ASC';
+        }
         return new Promise((resolve, reject) => {
-            dbConn.query(`SELECT * FROM ?? WHERE idst != ?`, ["core_user", "270"], (err, results) => {
+            dbConn.query(`SELECT * FROM ?? WHERE idst != ? ORDER BY ${sortBy} ${orderBy}  LIMIT ${limit}`, ["core_user", "270"], (err, results) => {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                } 
+            });
+        });
+    },
+
+    getTotalUsersCount: () => {
+        return new Promise((resolve, reject) => {
+            dbConn.query(`SELECT COUNT(*) AS 'TotalUsers' FROM ?? WHERE idst != ?`, ["core_user", "270"], (err, results) => {
                 if(err) {
                     reject(err);
                 } else {

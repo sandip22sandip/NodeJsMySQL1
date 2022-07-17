@@ -3,6 +3,3 @@ node_modules
 
 # Ignore .env
 .env
-
-# Ignore package-lock.json
-package-lock.json

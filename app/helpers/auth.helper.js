@@ -31,7 +31,7 @@ module.exports = {
             return;
         }
         let getUserData = await libUser.getUserFromAppToken(tokenfromheader);
-        console.log(getUserData);
+        // console.log(getUserData);
         if(getUserData && getUserData.length){
             next();
         }else{
