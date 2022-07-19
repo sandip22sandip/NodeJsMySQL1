@@ -127,7 +127,7 @@ module.exports = {
 
             let updateAppToken = await libUser.updateAppToken(userData.idst, appToken);
             if(updateAppToken){
-                resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", userData);
+                resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", appToken);
             }else{
                 resHelper.handleError(res);
             }
