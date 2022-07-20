@@ -123,7 +123,7 @@ module.exports = {
                 lastname: userData.lastname, 
                 email: userData.email,
                 user_type: userData.user_type
-            }, process.env.JWT_KEY);
+            }, process.env.JWT_KEY, { expiresIn: '2h' });
 
             let updateAppToken = await libUser.updateAppToken(userData.idst, appToken);
             if(updateAppToken){
