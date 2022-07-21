@@ -2,6 +2,7 @@
 
 let resHelper               = require('../helpers/response.helper.js');
 let libUser                 = require('../lib/lib.user'); 
+let User                    = require('../models/user.model'); 
 const bcrypt                = require('bcrypt');
 const jwt                   = require('jsonwebtoken');
 const { validationResult }  = require('express-validator/check');
@@ -10,7 +11,7 @@ let multer                  = require("multer");
 const authHelper = require('../helpers/auth.helper.js');
 
 function paginate(npp, page, totalRows){
-    let numPerPage      = parseInt(npp, 10) || 10;
+    let numPerPage      = parseInt(npp, 10) || process.env.DOCSLIMIT;
     let pageNo          = parseInt(page, 10) || 0;
     let skip            = pageNo * numPerPage;
     let limit           = skip + ',' + numPerPage;
@@ -82,9 +83,9 @@ module.exports = {
                 return;
             }
 
-            let isReg = await libUser.registerUser(userid, firstname, lastname, email, pass, user_type);
+            let isReg = await User.registerUser(userid, firstname, lastname, email, pass, user_type);
 
-            console.log(isReg.insertId);
+            console.log("Registered User idst", isReg.insertId);
             
             resHelper.respondAsJSON(res, true, 200, 'User registered successfully!', { idst: isReg.insertId});
         } catch(error){
@@ -125,7 +126,7 @@ module.exports = {
                 user_type: userData.user_type
             }, process.env.JWT_KEY, { expiresIn: '2h' });
 
-            let updateAppToken = await libUser.updateAppToken(userData.idst, appToken);
+            let updateAppToken = await User.updateAppToken(userData.idst, appToken);
             if(updateAppToken){
                 resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", appToken);
             }else{
@@ -165,12 +166,12 @@ module.exports = {
                     return;
                 }
 
-                let updateUser = await libUser.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
+                let updateUser = await User.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
                 resHelper.respondAsJSON(res, true, 200, "User details updated successfully!");
                 return;
             }
 
-            let updateUser = await libUser.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
+            let updateUser = await User.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
             resHelper.respondAsJSON(res, true, 200, "User details updated successfully!", {updateUser});
         } catch(error){
             resHelper.handleError(res);
@@ -194,7 +195,7 @@ module.exports = {
                 return;
             }
 
-            let delUser = await libUser.deleteUser(idst);
+            let delUser = await User.deleteUser(idst);
             resHelper.respondAsJSON(res, true, 200, "User deleted successfully!", {delUser});
         }catch(error){
             resHelper.handleError(res);
@@ -237,7 +238,7 @@ module.exports = {
 
                 let avatar  = 'public/uploads/avatars/'+file.filename;
                 let idst    = userDetail[0].idst;
-                let updateAvatar = await libUser.updateAvatar(idst, avatar);
+                let updateAvatar = await User.updateAvatar(idst, avatar);
                 if(updateAvatar){
                     resHelper.respondAsJSON(res, true, 200, "Profile Avatar uploaded successfully!", {file});
                 }else{

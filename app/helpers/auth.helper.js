@@ -26,6 +26,7 @@ module.exports = {
 
     isAuthorize: async (req, res, next) => {
         let tokenfromheader = getAccessTokenFromHeader(req);
+        // console.log("Access", tokenfromheader); 
         if (tokenfromheader === null) {
             resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
             return;
