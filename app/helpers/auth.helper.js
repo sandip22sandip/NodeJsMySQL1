@@ -39,5 +39,26 @@ module.exports = {
             resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
             return;
         }
+    },
+
+    isAdmin: async (req, res, next) => {
+        let tokenfromheader = getAccessTokenFromHeader(req);
+        // console.log("Access", tokenfromheader); 
+        if (tokenfromheader === null) {
+            resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
+            return;
+        }
+        let getUserData = await libUser.getUserFromAppToken(tokenfromheader);
+        // console.log(getUserData);
+        if(getUserData && getUserData.length){
+            if(getUserData[0].user_type == '1'){
+                next();
+            }else{
+                return resHelper.handleError(res, false, 401, `You can't Access`, {});
+            }
+        }else{
+            resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
+            return;
+        }
     }
 };

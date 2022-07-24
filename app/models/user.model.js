@@ -1,9 +1,9 @@
 'use strict';
+
 const path      = require('path');
 let dbConn      = require(path.resolve('database.js'));
 
 module.exports = {
-
     registerUser: (userid, firstname, lastname, email, pass, user_type) => {
         return new Promise((resolve, reject) => {
             let posts = { userid, firstname, lastname, email, pass, user_type };
@@ -44,18 +44,6 @@ module.exports = {
     updateAvatar: (idst, avatar) => {
         return new Promise((resolve, reject) => {
             dbConn.query(`UPDATE ?? SET avatar = ? WHERE idst = ?`, ["core_user", avatar, idst], (err, results) => {
-                if(err){
-                    reject(err);
-                }else{
-                    resolve(results);
-                }
-            });
-        });
-    },
-
-    deleteUser: (idst) => {
-        return new Promise((resolve, reject) => {
-            dbConn.query(`DELETE FROM ?? WHERE idst = ?`, ["core_user", idst], (err, results) => {
                 if(err){
                     reject(err);
                 }else{

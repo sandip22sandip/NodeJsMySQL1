@@ -34,11 +34,5 @@ exports.validate = (method) => {
                 body('user_type').optional().isIn(["1", "2"]).withMessage('Only 1 & 2 User Types accepted.'),
             ];
         }
-
-        case 'deleteUserVal': {
-            return [
-                param('id').trim().escape().withMessage('User ID is required filed.')
-            ];
-        }
     }
 }
