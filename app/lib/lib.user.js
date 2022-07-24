@@ -1,7 +1,9 @@
 'use strict';
 
 const bcrypt    = require('bcrypt');
-let dbConn      = require('../../database.js');
+const path      = require('path');
+
+let dbConn      = require(path.resolve('database.js'));
 
 module.exports = {
     
