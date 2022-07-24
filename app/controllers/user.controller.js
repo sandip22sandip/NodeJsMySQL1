@@ -1,14 +1,17 @@
 'use strict';
 
+const authHelper            = require('../helpers/auth.helper.js');
 let resHelper               = require('../helpers/response.helper.js');
+let imageUploader           = require('../helpers/imageUpload.helper.js');
 let libUser                 = require('../lib/lib.user'); 
 let User                    = require('../models/user.model'); 
+
+let fs                      = require('fs');
 const bcrypt                = require('bcrypt');
 const jwt                   = require('jsonwebtoken');
 const { validationResult }  = require('express-validator/check');
 
-let multer                  = require("multer");
-const authHelper = require('../helpers/auth.helper.js');
+const uploadImage           = imageUploader.upload.single('image');
 
 function paginate(npp, page, totalRows){
     let numPerPage      = parseInt(npp, 10) || process.env.DOCSLIMIT;
@@ -203,50 +206,42 @@ module.exports = {
         }
     },
 
+    checkImageVal: async (req, res, next)=>{
+        uploadImage(req, res, (err)=>{
+            if(err){
+                return resHelper.handleError(res, false, 400, 'Oops! Bad request.', err.message);
+            }
+            next();
+        });
+    },
+
     uploadProfileAvatar: async (req, res) => {
         try{
             let file    = req.file;
             // console.log(file);
 
-            if(!['image/jpeg', 'image/jpg', 'image/png'].includes(file.mimetype)){
-                resHelper.handleError(res, false, 400, "Oops! File type not supported", {file});
+            let userDetail = await authHelper.verifyJWTToken(req);
+
+            if(Object.keys(userDetail).length === 0 && userDetail.constructor === Object){
+                resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
                 return;
             }
 
-            var storage = multer.diskStorage({
-                destination: function (req, file, cb) {
-                  cb(null, './public/uploads/avatars/')
-                },
-                filename: function (req, file, cb) {
-                  cb(null, file.originalname)
-                }
-            });
-            var upload = multer({ storage: storage });
+            //Unlink previously uploaded Avatar:-
+            let getUserFromToken = await libUser.checkidstExists(userDetail.idst);
+            if(getUserFromToken[0].avatar && getUserFromToken[0].avatar !== null){
+                await fs.unlinkSync(`./${getUserFromToken[0].avatar}`);
+            }
 
-            if(upload){
-                let appToken   = await authHelper.getAccessToken(req);
-                if (appToken === null) {
-                    resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-                    return;
-                }
-
-                let userDetail = await libUser.getUserFromAppToken(appToken);
-                if(userDetail.length == 0){
-                    resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
-                    return;
-                }
-
-                let avatar  = 'public/uploads/avatars/'+file.filename;
-                let idst    = userDetail[0].idst;
-                let updateAvatar = await User.updateAvatar(idst, avatar);
-                if(updateAvatar){
-                    resHelper.respondAsJSON(res, true, 200, "Profile Avatar uploaded successfully!", {file});
-                }else{
-                    resHelper.handleError(res, false, 400, "Oops! Something went wrong while uploading the File.");
-                }
+            let avatar          = `public/uploads/avatars/${file.filename}`;
+            let idst            = userDetail.idst;
+            let updateAvatar    = await User.updateAvatar(idst, avatar);
+            if(updateAvatar){
+                resHelper.respondAsJSON(res, true, 200, "Profile Avatar uploaded successfully!", {file});
             }else{
                 resHelper.handleError(res, false, 400, "Oops! Something went wrong while uploading the File.");
             }
+
         }catch(error){
             resHelper.handleError(res);
         }
