@@ -25,10 +25,26 @@
     "application/json"
   ],
   "paths": {
-    "/api/v1/user/uploadAvatar": {
+    "/api/v1/user/login": {
       "post": {
         "description": "",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "example": "any"
+                },
+                "pass": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {}
       }
     },
@@ -67,26 +83,10 @@
         "responses": {}
       }
     },
-    "/api/v1/user/login": {
+    "/api/v1/user/uploadAvatar": {
       "post": {
         "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "username": {
-                  "example": "any"
-                },
-                "pass": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {}
       }
     },
@@ -129,7 +129,9 @@
           }
         ],
         "responses": {}
-      },
+      }
+    },
+    "/api/v1/admin/manage-users/{id}": {
       "delete": {
         "description": "",
         "parameters": [
@@ -143,7 +145,7 @@
         "responses": {}
       }
     },
-    "/api/v1/user/getusers": {
+    "/api/v1/admin/manage-users/allusers": {
       "get": {
         "description": "",
         "parameters": [
