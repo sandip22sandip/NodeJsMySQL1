@@ -22,3 +22,6 @@ npm install express-validator@5.3.0
 
 ## Create app.js:-
 touch app.js
+
+## Generate Swagger Doc
+npm run swagger-autogen
