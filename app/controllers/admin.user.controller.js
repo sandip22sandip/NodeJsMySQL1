@@ -55,8 +55,7 @@ module.exports = {
 
             resHelper.respondAsJSON(res, true, 200, 'Users fetched successfully!', responsePayload);
         } catch(error){
-            resHelper.handleError(res);
-            return;
+            return resHelper.handleError(res);
         }
     },
 
@@ -64,23 +63,20 @@ module.exports = {
         try{
             const errors = validationResult(req);
             if(!errors.isEmpty()){
-                resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
-                return;
+                return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
             }
 
             let idst        = req.params.id;
             let getUser     = await libUser.checkidstExists(idst);
 
             if(getUser.length == 0){
-                resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
-                return;
+                return resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
             }
 
             let delUser = await Admin.deleteUser(idst);
             resHelper.respondAsJSON(res, true, 200, "User deleted successfully!", {delUser});
         }catch(error){
-            resHelper.handleError(res);
-            return;
+            return resHelper.handleError(res);
         }
     },
 }

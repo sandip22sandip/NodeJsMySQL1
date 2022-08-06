@@ -18,8 +18,7 @@ module.exports = {
         try {
             const errors = validationResult(req);
             if(!errors.isEmpty()){
-                resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
-                return;
+                return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
             }
 
             let { username, password, firstname, lastname, email, user_type } = req.body;
@@ -29,18 +28,18 @@ module.exports = {
 
             let isExists    = await libUser.checkUseridExists(userid);
             if(isExists.length != 0){
-                resHelper.handleError(res, false, 400, "Oops! User already exists on System.", isExists[0]);
-                return;
+                return resHelper.handleError(res, false, 400, "Oops! User already exists on System.", isExists[0]);
             }
 
-            let isReg = await User.registerUser(userid, firstname, lastname, email, pass, user_type);
+            const RegParams = { userid, firstname, lastname, email, pass, user_type };
+
+            let isReg = await User.registerUser(RegParams);
 
             console.log("Registered User idst", isReg.insertId);
             
             resHelper.respondAsJSON(res, true, 200, 'User registered successfully!', { idst: isReg.insertId});
         } catch(error){
-            resHelper.handleError(res);
-            return;
+            return resHelper.handleError(res);
         }
     },
 
@@ -48,22 +47,19 @@ module.exports = {
         try{
             const errors = validationResult(req);
             if(!errors.isEmpty()){
-                resHelper.handleError(res, false, 400, "Oops! The Login credentials are incorrect.", { error: errors.array() });
-                return;
+                return resHelper.handleError(res, false, 400, "Oops! The Login credentials are incorrect.", { error: errors.array() });
             }
 
             let { username, pass } = req.body;
             let userid      = `/${username}`;
             let isExists    = await libUser.checkUseridExists(userid);
             if(isExists.length == 0){
-                resHelper.handleError(res, false, 401, "Oops! User does not exists on System.");
-                return;
+                return resHelper.handleError(res, false, 401, "Oops! User does not exists on System.");
             }
 
             const hashedPassword = isExists[0].pass;
             if(!bcrypt.compare(pass, hashedPassword)){
-                resHelper.handleError(res, false, 400, "Oops! Password does not matched.", {});
-                return;
+                return resHelper.handleError(res, false, 400, "Oops! Password does not matched.", {});
             }
 
             let userData = isExists[0];
@@ -80,11 +76,10 @@ module.exports = {
             if(updateAppToken){
                 resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", appToken);
             }else{
-                resHelper.handleError(res);
+                return resHelper.handleError(res);
             }
         }catch(error){
-            resHelper.handleError(res);
-            return;
+            return resHelper.handleError(res);
         }
     },
 
@@ -92,8 +87,7 @@ module.exports = {
         try{
             const errors = validationResult(req);
             if(!errors.isEmpty()){
-                resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
-                return;
+                return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
             }
 
             let { username, password, firstname, lastname, email, user_type } = req.body;
@@ -105,27 +99,24 @@ module.exports = {
             let results     = await libUser.checkidstExists(idst);
 
             if(results.length == 0){
-                resHelper.handleError(res, true, 404, "Oops! User not found system.", {});
-                return;
+                return resHelper.handleError(res, true, 404, "Oops! User not found system.", {});
             }
 
             if(userid !== results[0].userid){
                 let isExists    = await libUser.checkUseridExists(userid);
                 if(isExists.length != 0){
-                    resHelper.handleError(res, true, 400, "Oops! Username already exists on the system.", isExists[0]);
-                    return;
+                    return resHelper.handleError(res, true, 400, "Oops! Username already exists on the system.", isExists[0]);
                 }
 
-                let updateUser = await User.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
-                resHelper.respondAsJSON(res, true, 200, "User details updated successfully!");
-                return;
+                let upParams   = {userid, firstname, lastname, email, pass, user_type };
+                let updateUser = await User.updateUser(upParams, idst);
+                return resHelper.respondAsJSON(res, true, 200, "User details updated successfully!", {updateUser});
             }
 
             let updateUser = await User.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
             resHelper.respondAsJSON(res, true, 200, "User details updated successfully!", {updateUser});
         } catch(error){
-            resHelper.handleError(res);
-            return;
+            return resHelper.handleError(res);
         }
     },
 
@@ -146,8 +137,7 @@ module.exports = {
             let userDetail = await authHelper.verifyJWTToken(req);
 
             if(Object.keys(userDetail).length === 0 && userDetail.constructor === Object){
-                resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
-                return;
+                return resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
             }
 
             //Unlink previously uploaded Avatar:-

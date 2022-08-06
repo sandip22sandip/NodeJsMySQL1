@@ -28,16 +28,14 @@ module.exports = {
         let tokenfromheader = getAccessTokenFromHeader(req);
         // console.log("Access", tokenfromheader); 
         if (tokenfromheader === null) {
-            resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-            return;
+            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
         }
         let getUserData = await libUser.getUserFromAppToken(tokenfromheader);
         // console.log(getUserData);
         if(getUserData && getUserData.length){
             next();
         }else{
-            resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-            return;
+            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
         }
     },
 
@@ -45,8 +43,7 @@ module.exports = {
         let tokenfromheader = getAccessTokenFromHeader(req);
         // console.log("Access", tokenfromheader); 
         if (tokenfromheader === null) {
-            resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-            return;
+            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
         }
         let getUserData = await libUser.getUserFromAppToken(tokenfromheader);
         // console.log(getUserData);
@@ -57,8 +54,7 @@ module.exports = {
                 return resHelper.handleError(res, false, 401, `You can't Access`, {});
             }
         }else{
-            resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-            return;
+            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
         }
     }
 };
