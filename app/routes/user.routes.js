@@ -7,13 +7,19 @@ let userController  = require('../controllers/user.controller.js');
 let userValidator   = require('../validators/user.validator.js');
 let authHelper      = require('../helpers/auth.helper.js');
 
-router.post('/login', userValidator.validate('loginUserVal'), userController.loginUser);
-
+/* Self-Registration */
 router.post('/sign-up', userValidator.validate('signUpUserVal'), userController.signUpUser);
 
+/* Login */
+router.post('/login', userValidator.validate('loginUserVal'), userController.loginUser);
+
+/* Below Routes are only accessibleafter Login */
 router.use(authHelper.isAuthorize);
 
 router.post('/uploadAvatar', userController.checkImageVal, userController.uploadProfileAvatar);
-router.post('/:id', userValidator.validate('editUserVal'), userController.editUser);
+router.put('/:id', userValidator.validate('editUserVal'), userController.editUser);
+
+/* Logout */
+router.get('/logout', userController.logoutUser);
 
 module.exports      = router;

@@ -42,7 +42,6 @@ module.exports = {
             return resHelper.handleError(res);
         }
     },
-
     loginUser: async (req, res, next) => {
         try{
             const errors = validationResult(req);
@@ -82,7 +81,17 @@ module.exports = {
             return resHelper.handleError(res);
         }
     },
-
+    logoutUser: async (req, res) => {
+        try{
+            const userDetails = await authHelper.verifyJWTToken(req);
+            
+            /* UPDATE Token to NULL */
+            await User.updateAppToken(userDetails.idst, null);
+            return resHelper.respondAsJSON(res, true, 200, "User logged out successfully!");
+        }catch(error){
+            return resHelper.handleError(res);
+        }
+    },
     editUser: async (req, res) => {
         try{
             const errors = validationResult(req);
@@ -119,7 +128,6 @@ module.exports = {
             return resHelper.handleError(res);
         }
     },
-
     checkImageVal: async (req, res, next)=>{
         uploadImage(req, res, (err)=>{
             if(err){
@@ -128,7 +136,6 @@ module.exports = {
             next();
         });
     },
-
     uploadProfileAvatar: async (req, res) => {
         try{
             let file    = req.file;
