@@ -71,12 +71,9 @@ module.exports = {
                 user_type: userData.user_type
             }, process.env.JWT_KEY, { expiresIn: '2h' });
 
-            let updateAppToken = await User.updateAppToken(userData.idst, appToken);
-            if(updateAppToken){
-                resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", appToken);
-            }else{
-                return resHelper.handleError(res);
-            }
+            await User.updateAppToken(userData.idst, appToken);
+            
+            return resHelper.respondAsJSON(res, true, 200, "Logged in successfully!", appToken);
         }catch(error){
             return resHelper.handleError(res);
         }
@@ -171,7 +168,7 @@ module.exports = {
                 await fs.unlinkSync(`./${getUserFromToken[0].avatar}`);
             }
 
-            let avatar          = `public/uploads/avatars/${file.filename}`;
+            let avatar          = `${file.filename}`;
             let idst            = userDetail.idst;
             let updateAvatar    = await User.updateAvatar(idst, avatar);
             if(updateAvatar){
