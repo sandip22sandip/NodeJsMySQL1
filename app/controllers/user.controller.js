@@ -57,7 +57,7 @@ module.exports = {
             }
 
             const hashedPassword = isExists[0].pass;
-            if(!bcrypt.compare(pass, hashedPassword)){
+            if(!bcrypt.compareSync(pass, hashedPassword)){
                 return resHelper.handleError(res, false, 400, "Oops! Password does not matched.", {});
             }
 
@@ -84,7 +84,7 @@ module.exports = {
     logoutUser: async (req, res) => {
         try{
             const userDetails = await authHelper.verifyJWTToken(req);
-            
+
             /* UPDATE Token to NULL */
             await User.updateAppToken(userDetails.idst, null);
             return resHelper.respondAsJSON(res, true, 200, "User logged out successfully!");
@@ -99,10 +99,9 @@ module.exports = {
                 return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
             }
 
-            let { username, password, firstname, lastname, email, user_type } = req.body;
+            let { username, firstname, lastname, email, user_type } = req.body;
 
             let idst        = req.params.id;
-            let pass        = bcrypt.hashSync(password, 10);
             let userid      = `/${username}`;
 
             let results     = await libUser.checkidstExists(idst);
@@ -111,20 +110,39 @@ module.exports = {
                 return resHelper.handleError(res, true, 404, "Oops! User not found system.", {});
             }
 
+            let upParams   = {userid, firstname, lastname, email, user_type };
+
             if(userid !== results[0].userid){
                 let isExists    = await libUser.checkUseridExists(userid);
                 if(isExists.length != 0){
                     return resHelper.handleError(res, true, 400, "Oops! Username already exists on the system.", isExists[0]);
                 }
 
-                let upParams   = {userid, firstname, lastname, email, pass, user_type };
                 let updateUser = await User.updateUser(upParams, idst);
                 return resHelper.respondAsJSON(res, true, 200, "User details updated successfully!", {updateUser});
             }
 
-            let updateUser = await User.updateUser(idst, userid, firstname, lastname, email, pass, user_type);
+            let updateUser = await User.updateUser(upParams, idst);
             resHelper.respondAsJSON(res, true, 200, "User details updated successfully!", {updateUser});
         } catch(error){
+            return resHelper.handleError(res);
+        }
+    },
+    changePass: async (req, res) => {
+        try{
+            const errors = validationResult(req);
+            if(!errors.isEmpty()){
+                return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
+            }
+
+            let { newPassword, confirmPassword } = req.body;
+            let pass         = bcrypt.hashSync(newPassword, 10);
+
+            const userDetails = await authHelper.verifyJWTToken(req);
+            await User.updatePass(userDetails.idst, pass);
+
+            resHelper.respondAsJSON(res, true, 200, "Password updated successully!", {});
+        }catch(error){
             return resHelper.handleError(res);
         }
     },
@@ -147,7 +165,7 @@ module.exports = {
                 return resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
             }
 
-            //Unlink previously uploaded Avatar:-
+            /* Unlink previously uploaded Avatar:- */
             let getUserFromToken = await libUser.checkidstExists(userDetail.idst);
             if(getUserFromToken[0].avatar && getUserFromToken[0].avatar !== null){
                 await fs.unlinkSync(`./${getUserFromToken[0].avatar}`);

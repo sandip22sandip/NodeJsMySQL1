@@ -16,8 +16,9 @@ router.post('/login', userValidator.validate('loginUserVal'), userController.log
 /* Below Routes are only accessibleafter Login */
 router.use(authHelper.isAuthorize);
 
-router.post('/uploadAvatar', userController.checkImageVal, userController.uploadProfileAvatar);
+router.post('/upload-avatar', userController.checkImageVal, userController.uploadProfileAvatar);
 router.put('/:id', userValidator.validate('editUserVal'), userController.editUser);
+router.post('/change-password', userValidator.validate('changePassVal'), userController.changePass);
 
 /* Logout */
 router.get('/logout', userController.logoutUser);

@@ -31,5 +31,12 @@ module.exports = {
             .then(resolve)
             .catch(reject);
         });
+    },
+    updatePass: (idst, pass) => {
+        return new Promise((resolve, reject) => {
+            dbConn.query(`UPDATE ?? SET pass = ? WHERE idst = ?`, ["core_user", pass, idst])
+            .then(resolve)
+            .catch(reject);
+        });
     }
 }
