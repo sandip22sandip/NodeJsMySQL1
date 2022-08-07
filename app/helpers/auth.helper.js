@@ -23,34 +23,28 @@ module.exports = {
     isAuthorize: async (req, res, next) => {
         let tokenfromheader = getAccessTokenFromHeader(req);
         // console.log("Access", tokenfromheader); 
-        if (tokenfromheader === null) {
-            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-        }
+        if (tokenfromheader === null) return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
         let getUserData = await libUser.getUserFromAppToken(tokenfromheader);
         // console.log(getUserData);
-        if(getUserData && getUserData.length){
-            next();
-        }else{
-            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-        }
+        if(getUserData && getUserData.length) return next();
+        return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
     },
 
     isAdmin: async (req, res, next) => {
         let tokenfromheader = getAccessTokenFromHeader(req);
         // console.log("Access", tokenfromheader); 
-        if (tokenfromheader === null) {
-            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
-        }
+        if (tokenfromheader === null) return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
+
         let getUserData = await libUser.getUserFromAppToken(tokenfromheader);
         // console.log(getUserData);
         if(getUserData && getUserData.length){
-            if(getUserData[0].user_type == '1'){
-                next();
-            }else{
-                return resHelper.handleError(res, false, 401, `You can't Access`, {});
-            }
-        }else{
-            return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
+            /* getUserLevelId */
+            let level = await libUser.getUserLevelId(getUserData[0].idst);
+            if(level[0].idst == '6') return next();
+
+            return resHelper.handleError(res, false, 401, `You can't Access`, {});
         }
+
+        return resHelper.handleError(res, false, 401, 'UnAthorize access.', {});
     }
 };

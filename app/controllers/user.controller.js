@@ -18,9 +18,8 @@ module.exports = {
     signUpUser: async (req, res) => {
         try {
             const errors = validationResult(req);
-            if(!errors.isEmpty()){
+            if(!errors.isEmpty())
                 return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
-            }
 
             let { username, password, firstname, lastname, email, user_type,  userNode} = req.body;
 
@@ -28,9 +27,8 @@ module.exports = {
             let userid      = `/${username}`;
 
             let isExists    = await libUser.checkUseridExists(userid);
-            if(isExists.length != 0){
+            if(isExists.length != 0)
                 return resHelper.handleError(res, false, 400, "Oops! User already exists on System.", isExists[0]);
-            }
 
             const RegParams = { userid, firstname, lastname, email, pass, user_type };
 
@@ -70,21 +68,18 @@ module.exports = {
     loginUser: async (req, res, next) => {
         try{
             const errors = validationResult(req);
-            if(!errors.isEmpty()){
+            if(!errors.isEmpty())
                 return resHelper.handleError(res, false, 400, "Oops! The Login credentials are incorrect.", { error: errors.array() });
-            }
-
+            
             let { username, pass } = req.body;
             let userid      = `/${username}`;
             let isExists    = await libUser.checkUseridExists(userid);
-            if(isExists.length == 0){
+            if(isExists.length == 0)
                 return resHelper.handleError(res, false, 401, "Oops! User does not exists on System.");
-            }
 
             const hashedPassword = isExists[0].pass;
-            if(!bcrypt.compareSync(pass, hashedPassword)){
+            if(!bcrypt.compareSync(pass, hashedPassword))
                 return resHelper.handleError(res, false, 400, "Oops! Password does not matched.", {});
-            }
 
             let userData = isExists[0];
             let appToken = jwt.sign({
@@ -117,9 +112,8 @@ module.exports = {
     editUser: async (req, res) => {
         try{
             const errors = validationResult(req);
-            if(!errors.isEmpty()){
+            if(!errors.isEmpty())
                 return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
-            }
 
             let { username, firstname, lastname, email, user_type } = req.body;
 
@@ -128,9 +122,8 @@ module.exports = {
 
             let results     = await libUser.checkidstExists(idst);
 
-            if(results.length == 0){
+            if(results.length == 0)
                 return resHelper.handleError(res, true, 404, "Oops! User not found system.", {});
-            }
 
             let upParams   = {userid, firstname, lastname, email, user_type };
 
@@ -153,9 +146,8 @@ module.exports = {
     changePass: async (req, res) => {
         try{
             const errors = validationResult(req);
-            if(!errors.isEmpty()){
+            if(!errors.isEmpty())
                 return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
-            }
 
             let { newPassword, confirmPassword } = req.body;
             let pass         = bcrypt.hashSync(newPassword, 10);
@@ -183,25 +175,21 @@ module.exports = {
 
             let userDetail = await authHelper.verifyJWTToken(req);
 
-            if(Object.keys(userDetail).length === 0 && userDetail.constructor === Object){
+            if(Object.keys(userDetail).length === 0 && userDetail.constructor === Object)
                 return resHelper.handleError(res, false, 404, "Oops! User not found on the system.");
-            }
 
             /* Unlink previously uploaded Avatar:- */
             let getUserFromToken = await libUser.checkidstExists(userDetail.idst);
-            if(getUserFromToken[0].avatar && getUserFromToken[0].avatar !== null){
+            if(getUserFromToken[0].avatar && getUserFromToken[0].avatar !== null)
                 await fs.unlinkSync(`./${getUserFromToken[0].avatar}`);
-            }
 
             let avatar          = `${file.filename}`;
             let idst            = userDetail.idst;
             let updateAvatar    = await User.updateAvatar(idst, avatar);
-            if(updateAvatar){
-                resHelper.respondAsJSON(res, true, 200, "Profile Avatar uploaded successfully!", {file});
-            }else{
-                resHelper.handleError(res, false, 400, "Oops! Something went wrong while uploading the File.");
-            }
 
+            if(updateAvatar) return resHelper.respondAsJSON(res, true, 200, "Profile Avatar uploaded successfully!", {file});
+
+            return resHelper.handleError(res, false, 400, "Oops! Something went wrong while uploading the File.");
         }catch(error){
             resHelper.handleError(res);
         }

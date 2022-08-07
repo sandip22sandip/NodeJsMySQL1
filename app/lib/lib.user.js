@@ -1,6 +1,8 @@
 'use strict';
 
 const bcrypt    = require('bcrypt');
+const { reject } = require('bluebird');
+const { resolve } = require('path');
 const path      = require('path');
 
 let dbConn      = require(path.resolve('database.js'));
@@ -44,6 +46,13 @@ module.exports = {
     getUserFromAppToken: (appToken) => {
         return new Promise((resolve, reject) => {
             dbConn.query(`SELECT * FROM ?? WHERE appToken = ?`, ["core_user", appToken])
+            .then(resolve)
+            .catch(reject);
+        });
+    },
+    getUserLevelId: (idst) => {
+        return new Promise((resolve, reject) => {
+            dbConn.query(`SELECT idst FROM ?? WHERE idstMember = ? AND idst IN ('3', '4', '5', '6')`, ["core_group_members", idst])
             .then(resolve)
             .catch(reject);
         });
