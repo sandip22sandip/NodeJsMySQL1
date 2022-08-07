@@ -4,17 +4,13 @@ const jwt       = require('jsonwebtoken');
 let resHelper   = require('./response.helper.js');
 let libUser     = require('../lib/lib.user.js');
 
-/**
- * Get authorization token from header
- */
+/* Get authorization token from header */
 function getAccessTokenFromHeader(req) {
     return (req.headers['authorization'] && req.headers['authorization'] !== null ? req.headers['authorization'].split(' ')[1] : null);
 }
 
 module.exports = {
-    /**
-     * Get Token from Request Header
-     */
+    /* Fetch Access Token */
     getAccessToken: (req) => {
         return getAccessTokenFromHeader(req);
     },

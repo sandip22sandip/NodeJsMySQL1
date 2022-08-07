@@ -3,7 +3,8 @@
 const authHelper            = require('../helpers/auth.helper.js');
 let resHelper               = require('../helpers/response.helper.js');
 let imageUploader           = require('../helpers/imageUpload.helper.js');
-let libUser                 = require('../lib/lib.user'); 
+let libUser                 = require('../lib/lib.user');
+let libAcl                  = require('../lib/lib.aclmanager');  
 let User                    = require('../models/user.model'); 
 
 let fs                      = require('fs');
@@ -21,7 +22,7 @@ module.exports = {
                 return resHelper.handleError(res, false, 400, 'Oops! Required Inputs are invalid.', { error: errors.array() });
             }
 
-            let { username, password, firstname, lastname, email, user_type } = req.body;
+            let { username, password, firstname, lastname, email, user_type,  userNode} = req.body;
 
             let pass        = bcrypt.hashSync(password, 10);
             let userid      = `/${username}`;
@@ -34,10 +35,34 @@ module.exports = {
             const RegParams = { userid, firstname, lastname, email, pass, user_type };
 
             let isReg = await User.registerUser(RegParams);
-
             console.log("Registered User idst", isReg.insertId);
+
+            let idst  = isReg.insertId;
+            if(!isNaN(idst) && idst > 0){
+                /* Add User to root branch:- */
+                let oc  = await libAcl.getGroupST('oc_0');
+                let ocd = await libAcl.getGroupST('ocd_0');
+
+                await libAcl.addToGroup(oc, idst);
+                await libAcl.addToGroup(ocd, idst);
+
+                /* subscribe user to level group */
+                let level       = '/framework/level/user';
+                let lev_group   = await libAcl.getGroupST(level);
+                await libAcl.addToGroup(lev_group, idst);
+
+                /* apply enroll rules */
+                let lang_code   = 'english';
+                if(userNode !== null && userNode != 0){
+                    let oc_sn   = await libAcl.getGroupST('oc_'+userNode);
+                    let ocd_sn  = await libAcl.getGroupST('ocd_'+userNode);
+
+                    await libAcl.addToGroup(oc_sn, idst);
+                    await libAcl.addToGroup(ocd_sn, idst);
+                }
+            }
             
-            resHelper.respondAsJSON(res, true, 200, 'User registered successfully!', { idst: isReg.insertId});
+            resHelper.respondAsJSON(res, true, 200, 'User registered successfully!', { idst: idst});
         } catch(error){
             return resHelper.handleError(res);
         }

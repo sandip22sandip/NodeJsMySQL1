@@ -1,5 +1,7 @@
 'use strict';
 
+const { reject } = require('bluebird');
+const { resolve } = require('path');
 const path      = require('path');
 let dbConn      = require(path.resolve('database.js'));
 
@@ -38,5 +40,20 @@ module.exports = {
             .then(resolve)
             .catch(reject);
         });
+    },
+    getGroupST: (groupid) => {
+        return new Promise((resolve, reject) => {
+            dbConn.query(`SELECT idst FROM ?? WHERE groupid = ?`, ["core_group", groupid])
+            .then(resolve)
+            .catch(reject);
+        });    
+    },
+    addToGroup: (...values) => {
+        return new Promise((resolve, reject) => {
+            //return console.log(`INSERT INTO core_group_members (idst, idstMember, filter) VALUES ${values.join(', ')}`);
+            dbConn.query(`INSERT INTO core_group_members (idst, idstMember, filter) VALUES ${values.join(', ')}`)
+            .then(resolve)
+            .catch(reject);
+       });
     }
 }
