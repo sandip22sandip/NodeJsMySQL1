@@ -13,8 +13,13 @@ let app             = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(expressValidator());
-app.use(cors());
 app.use(express.static("./public"));
+
+var corsOptions = {
+    origin: 'http://localhost:3030',
+    optionsSuccessStatus: 200 
+}
+app.use(cors(corsOptions));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
