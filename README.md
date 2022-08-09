@@ -32,3 +32,11 @@
 - pm2 list
 - pm2 delete app.js
 - pm2 delete all
+
+## Create Migrations using db-migrate nmp Package:-
+- npm install -g db-migrate
+- npm install --save db-migrate-mysql
+- db-migrate create user
+- db-migrate up
+- db-migrate down
+- db-migrate up 20111219
