@@ -1,11 +1,10 @@
 'use strict';
 
-const bcrypt    = require('bcrypt');
-const { reject } = require('bluebird');
-const { resolve } = require('path');
-const path      = require('path');
+const bcrypt        = require('bcrypt');
+const { resolve }   = require('path');
+const path          = require('path');
 
-let dbConn      = require(path.resolve('database.js'));
+let dbConn          = require(path.resolve('database.js'));
 
 module.exports = {
     getAllUsers: (limit, sortBy, orderBy, filterBy) => {
