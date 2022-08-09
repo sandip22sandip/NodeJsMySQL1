@@ -32,6 +32,7 @@
 - pm2 list
 - pm2 delete app.js
 - pm2 delete all
+- pm2 flush
 
 ## Create Migrations using db-migrate nmp Package:-
 - npm install -g db-migrate

@@ -1,6 +1,6 @@
 const cron                  = require('node-cron');
 const shell                 = require('shelljs');
-const scheduleConstants 	= require('./scheduleConstants');
+const scheduleConstants 	  = require('./scheduleConstants');
 
 const executeShell = () => {
     console.log(`------ CRON START AT ${new Date().toISOString()} ------`);
