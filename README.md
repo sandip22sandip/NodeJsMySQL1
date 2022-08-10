@@ -27,7 +27,8 @@
 - npm run swagger-autogen
 
 ## pm2 npm Package to Start the Node App/CRON Job:-
-- pm2 start app.js --name "Start App.js" && pm2 logs
+- npm install pm2 -g
+- pm2 start app.js --name "Start App.js"
 - pm2 logs
 - pm2 list
 - pm2 delete app.js
