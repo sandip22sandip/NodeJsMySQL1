@@ -1,9 +1,7 @@
 'use strict';
 
-const { reject } = require('bluebird');
-const { resolve } = require('path');
-const path      = require('path');
-let dbConn      = require(path.resolve('database.js'));
+const path          = require('path');
+let dbConn          = require(path.resolve('database.js'));
 
 module.exports = {
     registerUser: (params) => {
