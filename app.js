@@ -23,8 +23,13 @@ app.use(cors(corsOptions));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-require('./routes.js')(app);
+const http              = require('http');
+const server            = http.createServer(app);
+const { Server }        = require("socket.io");
+const io                = new Server(server);
 
-app.listen(process.env.SERVER_PORT);
+require('./routes.js')(app, io);
+
+server.listen(process.env.SERVER_PORT);
 
 console.log(`${process.env.APP_NAME} started on :>> ${process.env.SERVER_PORT}`);
